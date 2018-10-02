@@ -10,7 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+
 import java.util.ArrayList;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A fragment representing a single Recipe detail screen.
@@ -26,7 +31,7 @@ public class RecipeStepsListFragment extends Fragment {
     public static final String ARG_ITEM_ID = "item_id";
     public static final String ARG_STEP_ID = "step_id";
     public static final String ARG_ITEMS="items";
-
+    private SimpleExoPlayerView mPlayerView;
     /**
      * The dummy content this fragment is presenting.
      */
@@ -36,6 +41,8 @@ public class RecipeStepsListFragment extends Fragment {
     private CollapsingToolbarLayout appBarLayout;
     private String stepId;
     private String itemId;
+    @BindView(R.id.tv_step_description_intwopane) TextView myLongDescription;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -65,8 +72,7 @@ public class RecipeStepsListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        //Only get the recipe and set the Views if the system has data
+             //Only get the recipe and set the Views if the system has data
 
             Recipe recipe=viewModel.getRecipes().getValue().get(Integer.parseInt(itemId)-1);
             ArrayList<RecipeStep> recipeStepserecipeSteps = recipe.getSteps();
@@ -78,12 +84,13 @@ public class RecipeStepsListFragment extends Fragment {
 
             // Show the dummy content as text in a TextView.
             if (recipe != null) {
-                TextView myLongDescription=((TextView) rootView.findViewById(R.id.tv_step_description_intwopane));
                 int stepIdint=Integer.parseInt(stepId)-1;
                 myLongDescription
                         .setText(recipeStepserecipeSteps.get(stepIdint).getDescription());
             }
+        // Initialize the player view.
+        mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.playerView);
 
-        return rootView;
+        return  rootView;
     }
 }

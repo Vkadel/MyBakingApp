@@ -46,7 +46,7 @@ public class RecipeStepDetailActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         thisItemID = getIntent().getStringExtra(RecipeStepsListFragment.ARG_ITEM_ID);
-        thisStepID =getIntent().getStringExtra(RecipeStepsListFragment.ARG_ITEM_ID);
+        thisStepID =getIntent().getStringExtra(RecipeStepsListFragment.ARG_STEP_ID);
         RecipeViewModel viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
         viewModel.getRecipes().observe(this, new Observer<ArrayList<Recipe>>() {
             @Override
