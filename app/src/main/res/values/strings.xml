@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MybakingApp</string>
+    <string name="title_recipe_detail">Loading Recipe Steps</string>
+    <string name="Recipe_name">Recipe Name</string>
+    <string name="Recipe_servings">Servings#</string>
+    <string name="word_servings">Servings</string>
+    <string name="short_description">Short Description</string>
+    <string name="description">Description</string>
+    <string name="step_detail">Step Detail</string>
+    <string name="this_are_steps_for">Stepts to make</string>
+    <string name="step">Step Number </string>
+</resources>
