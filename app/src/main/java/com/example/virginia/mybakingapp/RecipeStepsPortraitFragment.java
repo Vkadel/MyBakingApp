@@ -86,7 +86,7 @@ public class RecipeStepsPortraitFragment extends Fragment {
     private Button[] mButtons;
     private String CHANNEL_ID = "My_Video_channel_id";
     @BindView(R.id.playerView)
-    SimpleExoPlayerView mPlayerView;
+    private SimpleExoPlayerView mPlayerView;
     private SimpleExoPlayer mPlayer;
     private Unbinder unbinder;
 
@@ -159,7 +159,8 @@ public class RecipeStepsPortraitFragment extends Fragment {
                 Util.getUserAgent(context, "yourApplicationName"));
         // This is the MediaSource representing the media to be played.
         MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(videoURL);
+                .createMediaSource(Uri.parse(videoURL));
+
         LoadControl loadControl=new DefaultLoadControl();
         SimpleExoPlayer exoPlayer = ExoPlayerFactory.newSimpleInstance(context,trackSelector,loadControl);
         // Prepare the player with the source.
