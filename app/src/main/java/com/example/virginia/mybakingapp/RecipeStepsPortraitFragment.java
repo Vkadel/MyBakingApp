@@ -1,64 +1,42 @@
 package com.example.virginia.mybakingapp;
 
 import android.app.Activity;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.media.session.MediaButtonReceiver;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultAllocator;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.Unbinder;
-
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static android.support.v4.content.ContextCompat.getSystemService;
+import timber.log.Timber;
 
 /**
  * A fragment representing a single Recipe detail screen.
@@ -74,21 +52,25 @@ public class RecipeStepsPortraitFragment extends Fragment {
     public static final String ARG_ITEM_ID = "item_id";
     public static final String ARG_STEP_ID = "step_id";
     public static final String ARG_ITEMS = "items";
-    private ArrayList<Recipe> recipes;
+    public static final String ARG_IS_PORTRAIT = "is_portrait";
+    private Recipe recipe;
+    private ArrayList<RecipeStep> steps;
     private CollapsingToolbarLayout appBarLayout;
     private String stepId;
     private String itemId;
-    MediaSessionCompat mMediaSession;
+    public Boolean isPortrait;
+    RecipeViewModel viewModel;
     private static final String TAG = RecipeStepsPortraitFragment.class.getSimpleName();
     private Context context;
-    //Player related variables
-    private PlaybackStateCompat.Builder mStateBuilder;
-    private Button[] mButtons;
-    private String CHANNEL_ID = "My_Video_channel_id";
+    @BindView(R.id.tv_step_description_intwopane) TextView myLongDescription;
+    //Player related variablesprivate PlaybackStateCompat.Builder mStateBuilder
     @BindView(R.id.playerView)
-    private SimpleExoPlayerView mPlayerView;
-    private SimpleExoPlayer mPlayer;
-    private Unbinder unbinder;
+    PlayerView mPlayerView;
+    private String CHANNEL_ID = "My_Video_channel_id";
+    /*private PlayerView mPlayerView;*/
+    private SimpleExoPlayer player;
+    private DataSource.Factory dataSourceFactory;
+    private MediaSource videoSource;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -97,7 +79,32 @@ public class RecipeStepsPortraitFragment extends Fragment {
     public RecipeStepsPortraitFragment() {
     }
 
-    RecipeViewModel viewModel;
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (player != null) {
+            player.release();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mPlayerView.requestFocus();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        player.stop();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        player.seekTo(0);
+        player.setPlayWhenReady(true);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,11 +117,28 @@ public class RecipeStepsPortraitFragment extends Fragment {
             context = this.getContext();
             Activity activity = this.getActivity();
             appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-
             itemId = getArguments().getString(ARG_ITEM_ID);
             stepId = getArguments().getString(ARG_STEP_ID);
+            isPortrait=getArguments().getBoolean(ARG_IS_PORTRAIT);
             viewModel = ViewModelProviders.of(getActivity()).get(RecipeViewModel.class);
         }
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initPlayer();
+        player.getBufferedPercentage();
+        SetDescriptionAdjustPlayer();
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        int orientation=this.getActivity().getRequestedOrientation();
+        Timber.e("CONFIGURATION CHANGED"+orientation);
+
     }
 
     @Override
@@ -123,49 +147,66 @@ public class RecipeStepsPortraitFragment extends Fragment {
 
         //Only get the recipe and set the Views if the system has data
 
-        Recipe recipe = viewModel.getRecipes().getValue().get(Integer.parseInt(itemId) - 1);
-        ArrayList<RecipeStep> recipeSteps = recipe.getSteps();
+        recipe = viewModel.getRecipes().getValue().get(Integer.parseInt(itemId) - 1);
+        steps = recipe.getSteps();
+        if(savedInstanceState!=null){
+            isPortrait=getActivity().getResources().getConfiguration().orientation==
+                    getActivity().getResources().getConfiguration().ORIENTATION_PORTRAIT;}
+        //Inflate Rootview
+        View rootView = inflater.inflate(R.layout.step_detail, container, false);
+        ButterKnife.bind(this,rootView);
         //Add the name to the AppBar
         if (appBarLayout != null) {
-
             String addonText = getContext().getResources().getString(R.string.step);
             appBarLayout.setTitle(recipe.getName() + " " + addonText + " " + stepId);
         }
-        View rootView = inflater.inflate(R.layout.step_detail, container, false);
 
-        // Show the dummy content as text in a TextView.
-        if (recipe != null) {
-            TextView myLongDescription = ((TextView) rootView.findViewById(R.id.tv_step_description_intwopane));
-            int stepIdint = Integer.parseInt(stepId) - 1;
-            //TODO bring the proper description
-            myLongDescription
-                    .setText(recipeSteps.get(stepIdint).getDescription());
-        }
-        // Initialize the Media Session.
-        mPlayerView = rootView.findViewById(R.id.playerView);
-        getPlayer();
-        mPlayerView.requestFocus();
+        SetDescriptionAdjustPlayer();
         return rootView;
+
     }
 
-    private void getPlayer() {
+public void setUpisPortraitRecipeStepFragment(boolean isport){
+        isPortrait=isport;
+}
+    private void initPlayer() {
         // URL of the video to stream
         String videoURL = "https://d17h27t6h515a5.cloudfront.net/topher/2017/April/58ffd9a6_2-mix-sugar-crackers-creampie/2-mix-sugar-crackers-creampie.mp4";
-
-        TrackSelector trackSelector = new DefaultTrackSelector();
-
+        player = ExoPlayerFactory.newSimpleInstance(context);
+        mPlayerView.setPlayer(player);
+        player.setPlayWhenReady(true);
         // Produces DataSource instances through which media data is loaded.
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
-                Util.getUserAgent(context, "yourApplicationName"));
+        dataSourceFactory = new DefaultDataSourceFactory(context,
+                Util.getUserAgent(context, getActivity().getApplication().getPackageName()));
         // This is the MediaSource representing the media to be played.
-        MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+        videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                 .createMediaSource(Uri.parse(videoURL));
 
-        LoadControl loadControl=new DefaultLoadControl();
-        SimpleExoPlayer exoPlayer = ExoPlayerFactory.newSimpleInstance(context,trackSelector,loadControl);
         // Prepare the player with the source.
-        exoPlayer.prepare(videoSource);
+        player.prepare(videoSource);
+    }
+    public void SetDescriptionAdjustPlayer(){
+        //Set Description
+        if (recipe != null) {
+            if(isPortrait){
+                myLongDescription.setVisibility(View.VISIBLE);
+                int stepIdint = Integer.parseInt(stepId) - 1;
+                //Get proper description for this particular step
+                myLongDescription.setText(steps.get(stepIdint).getDescription());
+                ConstraintLayout.LayoutParams params=(ConstraintLayout.LayoutParams)
+                        mPlayerView.getLayoutParams();
+                params.width=Math.round(getResources().getDimension(R.dimen.player_view_port_width));
+                params.height=Math.round(getResources().getDimension(R.dimen.player_view_port_width))/2;}
+                else {
+                myLongDescription.setVisibility(View.INVISIBLE);
+                mPlayerView.requestFocus();
+                ConstraintLayout.LayoutParams params=(ConstraintLayout.LayoutParams)
+                        mPlayerView.getLayoutParams();
+                params.width=Math.round(getResources().getDimension(R.dimen.player_view_land_width));
+                params.height=(int)Math.round(Math.round(getResources().getDimension(R.dimen.player_view_land_width))/2.1);;
 
+            }
+        }
     }
 
 }

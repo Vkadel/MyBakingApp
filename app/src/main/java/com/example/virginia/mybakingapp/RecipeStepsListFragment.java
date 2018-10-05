@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import java.util.ArrayList;
@@ -31,7 +32,8 @@ public class RecipeStepsListFragment extends Fragment {
     public static final String ARG_ITEM_ID = "item_id";
     public static final String ARG_STEP_ID = "step_id";
     public static final String ARG_ITEMS="items";
-    private SimpleExoPlayerView mPlayerView;
+    public static final String ARG_IS_PORTRAIT="is_portrait";
+    private PlayerView mPlayerView;
     /**
      * The dummy content this fragment is presenting.
      */
@@ -65,6 +67,7 @@ public class RecipeStepsListFragment extends Fragment {
             stepId=getArguments().getString(ARG_STEP_ID);
             viewModel=ViewModelProviders.of(getActivity()).get(RecipeViewModel.class);
 
+
         }
 
     }
@@ -89,7 +92,7 @@ public class RecipeStepsListFragment extends Fragment {
                         .setText(recipeStepserecipeSteps.get(stepIdint).getDescription());
             }
         // Initialize the player view.
-        mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.playerView);
+        mPlayerView = (PlayerView) rootView.findViewById(R.id.playerView);
 
         return  rootView;
     }

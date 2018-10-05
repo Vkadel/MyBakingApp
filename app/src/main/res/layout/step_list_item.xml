@@ -8,9 +8,9 @@
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/item_step_height"
         android:elevation="@dimen/space_dimension_small"
-        android:padding="@dimen/space_dimension_small"
+        android:padding="@dimen/space_dimension_large"
         app:cardBackgroundColor="?attr/colorButtonNormal">
 
         <android.support.constraint.ConstraintLayout
@@ -18,7 +18,7 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:textSize="16sp"
+                android:textSize="@dimen/item_step_font_size"
                 android:id="@+id/short_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
