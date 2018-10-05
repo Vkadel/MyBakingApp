@@ -37,10 +37,11 @@ import java.util.ArrayList;
 
 public class RecipeStepDetailActivity extends AppCompatActivity {
     private boolean mTwoPane = false;
-
+    RecipeViewModel viewModel;
     static String thisItemID;
     static String thisStepID;
     RecipeStepsPortraitFragment fragmentSteps;
+
     Boolean isPortrait;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +70,7 @@ public class RecipeStepDetailActivity extends AppCompatActivity {
 
         thisItemID = getIntent().getStringExtra(RecipeStepsListFragment.ARG_ITEM_ID);
         thisStepID =getIntent().getStringExtra(RecipeStepsListFragment.ARG_STEP_ID);
-        RecipeViewModel viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
         viewModel.getRecipes().observe(this, new Observer<ArrayList<Recipe>>() {
             @Override
             public void onChanged(@Nullable ArrayList<Recipe> recipes) {
@@ -104,6 +105,12 @@ public class RecipeStepDetailActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 
     @Override

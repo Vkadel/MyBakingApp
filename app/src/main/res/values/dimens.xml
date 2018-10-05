@@ -10,5 +10,5 @@
     <dimen name="space_dimension_medium">16dp</dimen>
     <dimen name="space_dimension_large">32dp</dimen>
     <dimen name="player_view_port_width">500dp</dimen>
-    <dimen name="player_view_land_width">750dp</dimen>
+    <dimen name="player_view_land_width">790dp</dimen>
 </resources>

@@ -60,6 +60,7 @@ public class RecipeStepsPortraitFragment extends Fragment {
     private String itemId;
     public Boolean isPortrait;
     RecipeViewModel viewModel;
+    private String videoURL;
     private static final String TAG = RecipeStepsPortraitFragment.class.getSimpleName();
     private Context context;
     @BindView(R.id.tv_step_description_intwopane) TextView myLongDescription;
@@ -84,6 +85,9 @@ public class RecipeStepsPortraitFragment extends Fragment {
         super.onDestroyView();
         if (player != null) {
             player.release();
+            player=null;
+            mPlayerView.getOverlayFrameLayout().removeAllViews();
+            videoURL=null;
         }
     }
 
@@ -171,23 +175,26 @@ public void setUpisPortraitRecipeStepFragment(boolean isport){
 }
     private void initPlayer() {
         // URL of the video to stream
-        String videoURL = "https://d17h27t6h515a5.cloudfront.net/topher/2017/April/58ffd9a6_2-mix-sugar-crackers-creampie/2-mix-sugar-crackers-creampie.mp4";
-        player = ExoPlayerFactory.newSimpleInstance(context);
-        mPlayerView.setPlayer(player);
-        player.setPlayWhenReady(true);
-        // Produces DataSource instances through which media data is loaded.
-        dataSourceFactory = new DefaultDataSourceFactory(context,
-                Util.getUserAgent(context, getActivity().getApplication().getPackageName()));
-        // This is the MediaSource representing the media to be played.
-        videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(Uri.parse(videoURL));
+        videoURL = steps.get(Integer.parseInt(stepId) - 1).getVideoURL();
+        if (recipe != null && videoURL != null) {
 
-        // Prepare the player with the source.
-        player.prepare(videoSource);
+            player = ExoPlayerFactory.newSimpleInstance(context);
+            mPlayerView.setPlayer(player);
+            player.setPlayWhenReady(true);
+            // Produces DataSource instances through which media data is loaded.
+            dataSourceFactory = new DefaultDataSourceFactory(context,
+                    Util.getUserAgent(context, getActivity().getApplication().getPackageName()));
+            // This is the MediaSource representing the media to be played.
+            videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(Uri.parse(videoURL));
+
+            // Prepare the player with the source.
+            player.prepare(videoSource);
+        }
     }
     public void SetDescriptionAdjustPlayer(){
         //Set Description
-        if (recipe != null) {
+        if (recipe != null&& mPlayerView!=null) {
             if(isPortrait){
                 myLongDescription.setVisibility(View.VISIBLE);
                 int stepIdint = Integer.parseInt(stepId) - 1;
