@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MybakingApp</string>
+    <string name="app_name">My recipes</string>
     <string name="title_recipe_detail">Loading Recipe Steps</string>
     <string name="Recipe_name">Recipe Name</string>
     <string name="Recipe_servings">Servings#</string>
@@ -9,4 +9,10 @@
     <string name="step_detail">Step Detail</string>
     <string name="this_are_steps_for">Stepts to make</string>
     <string name="step">Step Number </string>
+    <string name="channel_name">Notification</string>
+    <string name="channel_description">Just a channel</string>
+    <string name="pause">pause</string>
+    <string name="play">play</string>
+    <string name="restart">restart</string>
+    <string name="Upps_no_internet">Upps no Internet Connection \n Close and restart your App</string>
 </resources>

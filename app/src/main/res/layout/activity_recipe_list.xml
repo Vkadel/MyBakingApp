@@ -31,6 +31,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
            android:layout_gravity="clip_vertical"/>
+
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/no_internet_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/Upps_no_internet" />
 
 </android.support.design.widget.CoordinatorLayout>

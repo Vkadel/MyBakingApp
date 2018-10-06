@@ -5,4 +5,10 @@
     <dimen name="item_width">150dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="space_dimension_small">8dp</dimen>
+    <dimen name="item_step_height">32dp</dimen>
+    <dimen name="item_step_font_size">24sp</dimen>
+    <dimen name="space_dimension_medium">16dp</dimen>
+    <dimen name="space_dimension_large">32dp</dimen>
+    <dimen name="player_view_port_width">500dp</dimen>
+    <dimen name="player_view_land_width">790dp</dimen>
 </resources>

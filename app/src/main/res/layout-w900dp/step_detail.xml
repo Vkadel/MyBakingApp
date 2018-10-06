@@ -8,25 +8,21 @@
     android:padding="16dp"
     android:textIsSelectable="true"
     tools:context=".RecipeDetailFragment">
-
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:paddingTop="@dimen/space_dimension_medium"
+        android:id="@+id/playerView"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
     <TextView
+        style="@style/Instruction_step_style"
+        android:textStyle="italic"
         android:id="@+id/tv_step_description_intwopane"
+        app:layout_constraintTop_toBottomOf="@id/playerView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView" />
 
-    <ImageView
-
-        android:layout_width="600dp"
-        android:layout_height="600dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@drawable/test_image"
-        android:padding="@dimen/space_dimension_small"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_step_description_intwopane" />
 
 </android.support.constraint.ConstraintLayout>

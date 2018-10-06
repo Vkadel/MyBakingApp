@@ -20,4 +20,9 @@
         <item name="android:textSize">32sp</item>
     </style>
 
+    <style name="Instruction_step_style">
+        <item name="android:textSize">32sp</item>
+
+    </style>
+
 </resources>

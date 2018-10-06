@@ -5,6 +5,8 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
 import timber.log.Timber;
 
 /**
@@ -37,7 +40,8 @@ public class RecipeListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
     private ArrayList<Recipe> Recipes;
-
+    private boolean isInternetOn;
+    @BindView(R.id.no_internet_tv) TextView noInternetTv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,31 +53,38 @@ public class RecipeListActivity extends AppCompatActivity {
 
         //Planting a Tree
         Timber.plant(new Timber.DebugTree());
+        isInternetOn=isNetworkAvailable();
+        if(isInternetOn) {
+            final View recyclerView = findViewById(R.id.recipe_list);
+            assert recyclerView != null;
+            //setupRecyclerView((RecyclerView) recyclerView);
+            RecipeViewModel model = ViewModelProviders
+                    .of(this).get(RecipeViewModel.class);
+
+            model.getRecipes().observe(this, new Observer<ArrayList<Recipe>>() {
+                @Override
+                public void onChanged(@Nullable ArrayList<Recipe> recipes) {
+                    Recipes = recipes;
+                    Timber.e("I got the power!");
+                    assert recyclerView != null;
+                    setupRecyclerView((RecyclerView) recyclerView, recipes);
 
 
-        final View recyclerView = findViewById(R.id.recipe_list);
-        assert recyclerView != null;
-        //setupRecyclerView((RecyclerView) recyclerView);
-        RecipeViewModel model=ViewModelProviders
-                .of(this).get(RecipeViewModel.class);
+                }
+            });
 
-        model.getRecipes().observe(this, new Observer<ArrayList<Recipe>>() {
-            @Override
-            public void onChanged(@Nullable ArrayList<Recipe> recipes) {
-                Recipes=recipes;
-                Timber.e("I got the power!");
-                assert recyclerView != null;
-                setupRecyclerView((RecyclerView) recyclerView,recipes);
-
-
-            }
-        });
-
-
-
-
+        }
+        else{
+         noInternetTv.setVisibility(View.VISIBLE);
+        }
     }
-
+    //Check for Internet Connection
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView,ArrayList<Recipe> Recipes) {
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, Recipes, mTwoPane));
@@ -116,7 +127,6 @@ public class RecipeListActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.mIdView.setText(mValues.get(position).name);
             holder.mServings.setText(mValues.get(position).servings);
-
             holder.itemView.setTag(mValues.get(position).id);
             holder.itemView.setOnClickListener(mOnClickListener);
         }
