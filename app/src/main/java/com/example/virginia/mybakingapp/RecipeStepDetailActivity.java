@@ -45,7 +45,6 @@ import butterknife.ButterKnife;
  */
 
 public class RecipeStepDetailActivity extends AppCompatActivity {
-    private boolean mTwoPane = false;
     RecipeViewModel viewModel;
     static String thisItemID;
     static String thisStepID;
@@ -81,6 +80,7 @@ public class RecipeStepDetailActivity extends AppCompatActivity {
         final Bundle savedInstanceStateFinal = savedInstanceState;
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
+        boolean mTwoPane = false;
         if (actionBar != null && (mTwoPane || isPortrait)) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }

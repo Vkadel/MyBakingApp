@@ -62,8 +62,6 @@ public class RecipeStepsListFragment extends Fragment {
 
     /*private PlayerView mPlayerView;*/
     private SimpleExoPlayer player;
-    private DataSource.Factory dataSourceFactory;
-    private MediaSource videoSource;
     private String videoURL;
     //Player related variablesprivate PlaybackStateCompat.Builder mStateBuilder
     @BindView(R.id.playerView)
@@ -163,10 +161,10 @@ public class RecipeStepsListFragment extends Fragment {
             mPlayerView.setPlayer(player);
             player.setPlayWhenReady(true);
             // Produces DataSource instances through which media data is loaded.
-            dataSourceFactory = new DefaultDataSourceFactory(context,
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
                     Util.getUserAgent(context, getActivity().getApplication().getPackageName()));
             // This is the MediaSource representing the media to be played.
-            videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+            MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(Uri.parse(videoURL));
 
             // Prepare the player with the source.

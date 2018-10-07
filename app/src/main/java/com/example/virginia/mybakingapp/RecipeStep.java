@@ -14,10 +14,6 @@ public class RecipeStep {
         description =stepDesc;
         videoURL =stepVidURL;
         thumbnailURL =stepThumbnail;
-        if(stepVidURL!=""){
-            hasVideoURL=true;
-        }else{hasVideoURL=false;}
-
     }
 
     public Boolean getHasVideoURL() {

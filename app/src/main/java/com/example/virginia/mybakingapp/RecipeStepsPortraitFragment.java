@@ -82,8 +82,6 @@ public class RecipeStepsPortraitFragment extends Fragment {
 
     //Player related variables
     private SimpleExoPlayer player;
-    private DataSource.Factory dataSourceFactory;
-    private MediaSource videoSource;
     @BindView(R.id.playerView)
     PlayerView mPlayerView;
     private String videoURL;
@@ -143,7 +141,7 @@ public class RecipeStepsPortraitFragment extends Fragment {
             // to load content from a content provider.
             context = this.getContext();
             Activity activity = this.getActivity();
-            appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+            appBarLayout = activity.findViewById(R.id.toolbar_layout);
             itemId = getArguments().getString(ARG_ITEM_ID);
             stepId = getArguments().getString(ARG_STEP_ID);
             isPortrait = getArguments().getBoolean(ARG_IS_PORTRAIT);
@@ -245,10 +243,10 @@ public class RecipeStepsPortraitFragment extends Fragment {
             mPlayerView.setPlayer(player);
             player.setPlayWhenReady(true);
             // Produces DataSource instances through which media data is loaded.
-            dataSourceFactory = new DefaultDataSourceFactory(context,
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
                     Util.getUserAgent(context, getActivity().getApplication().getPackageName()));
             // This is the MediaSource representing the media to be played.
-            videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+            MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(Uri.parse(videoURL));
 
             // Prepare the player with the source.

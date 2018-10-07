@@ -94,7 +94,7 @@ public class RecipeDetailFragment extends Fragment {
 
                 Context context=getContext();
                 recipeDetailstv.setText(mylistofIngredients);
-                servings.setText(getActivity().getResources().getString(R.string.word_for)+ mItem.servings+" "+
+                servings.setText(getActivity().getResources().getString(R.string.word_for)+" "+ mItem.servings+" "+
                         getActivity().getResources().getString(R.string.word_servings));
                 final String myToastText=mylistofIngredients;
                 addIngredientsToWidget.setOnClickListener(new View.OnClickListener() {

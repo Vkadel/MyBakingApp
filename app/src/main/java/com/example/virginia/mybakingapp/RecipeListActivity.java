@@ -40,20 +40,19 @@ public class RecipeListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
     private ArrayList<Recipe> Recipes;
-    private boolean isInternetOn;
     @BindView(R.id.no_internet_tv) TextView noInternetTv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
         //Planting a Tree
         Timber.plant(new Timber.DebugTree());
-        isInternetOn=isNetworkAvailable();
+        boolean isInternetOn = isNetworkAvailable();
         if(isInternetOn) {
             final View recyclerView = findViewById(R.id.recipe_list);
             assert recyclerView != null;
@@ -143,8 +142,8 @@ public class RecipeListActivity extends AppCompatActivity {
 
             ViewHolder(View view) {
                 super(view);
-                mIdView = (TextView) view.findViewById(R.id.tv_recipe_name);
-                mServings = (TextView) view.findViewById(R.id.tv_recipe_servings);
+                mIdView = view.findViewById(R.id.tv_recipe_name);
+                mServings = view.findViewById(R.id.tv_recipe_servings);
             }
         }
     }

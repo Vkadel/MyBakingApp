@@ -8,6 +8,6 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
-    app:layoutManager="LinearLayoutManager"
+    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
     tools:context=".RecipeDetailActivity"
     tools:listitem="@layout/step_list_item" />
