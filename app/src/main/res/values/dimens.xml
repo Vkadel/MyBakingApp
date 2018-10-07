@@ -2,7 +2,7 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">200dp</dimen>
-    <dimen name="item_width">150dp</dimen>
+    <dimen name="item_width">250dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="space_dimension_small">8dp</dimen>
     <dimen name="item_step_height">32dp</dimen>
@@ -11,4 +11,5 @@
     <dimen name="space_dimension_large">32dp</dimen>
     <dimen name="player_view_port_width">500dp</dimen>
     <dimen name="player_view_land_width">790dp</dimen>
+    <dimen name="max_width_before_tablet">599</dimen>
 </resources>

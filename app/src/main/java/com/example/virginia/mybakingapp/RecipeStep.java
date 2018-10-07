@@ -6,6 +6,7 @@ public class RecipeStep {
     private String description;
     private String videoURL;
     private String thumbnailURL;
+    private Boolean hasVideoURL;
 
     public RecipeStep(String stepId,String stepShortDesc,String stepDesc,String stepVidURL,String stepThumbnail){
         id =stepId;
@@ -13,6 +14,18 @@ public class RecipeStep {
         description =stepDesc;
         videoURL =stepVidURL;
         thumbnailURL =stepThumbnail;
+        if(stepVidURL!=""){
+            hasVideoURL=true;
+        }else{hasVideoURL=false;}
+
+    }
+
+    public Boolean getHasVideoURL() {
+        return hasVideoURL;
+    }
+
+    public void setHasVideoURL(Boolean hasVideoURL) {
+        this.hasVideoURL = hasVideoURL;
     }
 
     public void setDescription(String description) {

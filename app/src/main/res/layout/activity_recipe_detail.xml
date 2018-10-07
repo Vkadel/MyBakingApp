@@ -39,22 +39,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-         <android.support.v4.widget.NestedScrollView
+        <android.support.v4.widget.NestedScrollView
             android:id="@+id/recipe_detail_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-              <FrameLayout
+        <FrameLayout
 
             android:id="@+id/frameLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <include layout="@layout/step_list" />
         </FrameLayout>
+
     </LinearLayout>
+
 
 
 </android.support.design.widget.CoordinatorLayout>

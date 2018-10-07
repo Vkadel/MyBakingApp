@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:textIsSelectable="true"
-    tools:context=".RecipeDetailFragment">
+    tools:context=".RecipeDetailFragment"
+    android:id="@+id/portrait_layout_small">
 
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
         android:paddingTop="@dimen/space_dimension_medium"
@@ -23,5 +24,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView" />
+    <LinearLayout
+        app:layout_constraintTop_toBottomOf="@id/tv_step_description_intwopane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/previous_step_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/previous_step" />
+
+        <Button
+            android:id="@+id/next_step_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/next_step"  />
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

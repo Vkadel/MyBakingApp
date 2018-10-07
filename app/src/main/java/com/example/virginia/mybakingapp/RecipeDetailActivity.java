@@ -33,6 +33,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private boolean mTwoPane = false;
     RecipeViewModel viewModel;
     static String thisItemID;
+    static String thisStepID;
     private CollapsingToolbarLayout appBarLayout;
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -220,5 +221,19 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 mShortDescription = (TextView) view.findViewById(R.id.short_description);
             }
         }
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        thisItemID=savedInstanceState.getString(RecipeStepsPortraitFragment.ARG_ITEM_ID);
+        thisStepID=savedInstanceState.getString(RecipeStepsPortraitFragment.ARG_STEP_ID);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(RecipeStepsPortraitFragment.ARG_ITEM_ID, thisItemID);
+        outState.putString(RecipeStepsPortraitFragment.ARG_STEP_ID, thisStepID);
+
     }
 }

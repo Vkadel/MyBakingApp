@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 /**
  * A fragment representing a single Recipe detail screen.
  * This fragment is either contained in a {@link RecipeListActivity}
@@ -26,9 +28,6 @@ public class RecipeDetailFragment extends Fragment {
     public static final String ARG_ITEM_ID = "item_id";
     public static final String ARG_ITEMS="items";
     public static final String FIRST_STEP = "0";
-    /**
-     * The dummy content this fragment is presenting.
-     */
     private Recipe mItem;
     private ArrayList<Recipe> Recipes;
     private CollapsingToolbarLayout appBarLayout;
@@ -50,8 +49,6 @@ public class RecipeDetailFragment extends Fragment {
 
             Activity activity = this.getActivity();
             appBarLayout= (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-
-
             viewModel=ViewModelProviders.of(getActivity()).get(RecipeViewModel.class);
             Recipes= viewModel.getRecipes().getValue();
 
@@ -63,8 +60,7 @@ public class RecipeDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        //Only get the recipe and set the Views if the system has data
-
+           Timber.e("Inflating detail Fragment");
             mItem = Recipes.get(Integer.parseInt(getArguments().getString(ARG_ITEM_ID))-1);
             //Add the name to the AppBar
             if (appBarLayout != null) {
@@ -72,7 +68,6 @@ public class RecipeDetailFragment extends Fragment {
             }
             View rootView = inflater.inflate(R.layout.recipe_detail_ingredients, container, false);
 
-            // Show the dummy content as text in a TextView.
             if (mItem != null) {
                 ArrayList<RecipeIngredient> ingredientsArray=mItem.getIngredients();
                 String mylistofIngredients="Ingredient List\n\n";

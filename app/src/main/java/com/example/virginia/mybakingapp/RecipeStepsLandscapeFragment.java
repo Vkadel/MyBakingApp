@@ -3,7 +3,6 @@ package com.example.virginia.mybakingapp;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,33 +12,24 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
-import android.view.OrientationEventListener;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import timber.log.Timber;
 
 /**
@@ -48,7 +38,7 @@ import timber.log.Timber;
  * in two-pane mode (on tablets) or a {@link RecipeDetailActivity}
  * on handsets.
  */
-public class RecipeStepsPortraitFragment extends Fragment {
+public class RecipeStepsLandscapeFragment extends Fragment {
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -64,19 +54,13 @@ public class RecipeStepsPortraitFragment extends Fragment {
     private CollapsingToolbarLayout appBarLayout;
     private String stepId;
     private String itemId;
-    public Boolean isPortrait;
+    public Boolean isportrait;
+    public Boolean isLandScape;
     RecipeViewModel viewModel;
-    private Fragment fragmentSteps;
-    private static final String TAG = RecipeStepsPortraitFragment.class.getSimpleName();
     private Context context;
-    @Nullable
-    @BindView(R.id.previous_step_but)
-    Button prevStep;
-    @Nullable
-    @BindView(R.id.next_step_but)
-    Button nextStep;
     @BindView(R.id.tv_step_description_intwopane)
     TextView myLongDescription;
+
 
     Toast toast;
 
@@ -92,7 +76,7 @@ public class RecipeStepsPortraitFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public RecipeStepsPortraitFragment() {
+    public RecipeStepsLandscapeFragment() {
     }
 
     @Override
@@ -146,7 +130,7 @@ public class RecipeStepsPortraitFragment extends Fragment {
             appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             itemId = getArguments().getString(ARG_ITEM_ID);
             stepId = getArguments().getString(ARG_STEP_ID);
-            isPortrait = getArguments().getBoolean(ARG_IS_PORTRAIT);
+            isportrait = getArguments().getBoolean(ARG_IS_LANDSCAPE_AND_SMALL);
             viewModel = ViewModelProviders.of(getActivity()).get(RecipeViewModel.class);
             recipe = viewModel.getRecipes().getValue().get(Integer.parseInt(itemId) - 1);
             steps = recipe.getSteps();
@@ -159,43 +143,6 @@ public class RecipeStepsPortraitFragment extends Fragment {
         initPlayer();
         SetDescriptionAdjustPlayer();
         int screenSize=Integer.parseInt(getScreenSize().getString(SCREEN_W));
-        //On Click listener for buttom that loads the previous step
-        if (isPortrait && nextStep!=null){
-        prevStep.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Integer.parseInt(stepId) ==1){
-                    Toast.makeText(context, context.getResources()
-                            .getString(R.string.first_step), Toast.LENGTH_SHORT).show();
-                }
-                if (Integer.parseInt(stepId) >1) {
-                    String nextStep = String.valueOf(Integer.parseInt(stepId) - 1);
-                    Intent intent = new Intent(context, RecipeStepDetailActivity.class);
-                    intent.putExtra(RecipeStepsListFragment.ARG_ITEM_ID, itemId);
-                    intent.putExtra(RecipeStepsListFragment.ARG_STEP_ID, nextStep);
-                    context.startActivity(intent);
-                }
-            }
-        });
-        //On Click listener for buttom that loads the next step
-        nextStep.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Clicking the next StepDetail Activity
-                if(Integer.parseInt(stepId) == recipe.getSteps().size()){
-                    Toast.makeText(context, context.getResources()
-                            .getString(R.string.last_step), Toast.LENGTH_SHORT).show();
-                }
-                if (Integer.parseInt(stepId) < recipe.getSteps().size()) {
-                    String nextStep = String.valueOf(Integer.parseInt(stepId) + 1);
-                    Intent intent = new Intent(context, RecipeStepDetailActivity.class);
-                    intent.putExtra(RecipeStepsListFragment.ARG_ITEM_ID, itemId);
-                    intent.putExtra(RecipeStepsListFragment.ARG_STEP_ID, nextStep);
-                    context.startActivity(intent);
-                }
-            }
-        });
-    }
     }
 
 
@@ -213,14 +160,12 @@ public class RecipeStepsPortraitFragment extends Fragment {
 
         //Only get the recipe and set the Views if the system has data
 
+            isLandScape = getActivity().getResources().getConfiguration().orientation ==
+                    getActivity().getResources().getConfiguration().ORIENTATION_LANDSCAPE;
 
-        if (savedInstanceState != null) {
-            isPortrait = getActivity().getResources().getConfiguration().orientation ==
-                    getActivity().getResources().getConfiguration().ORIENTATION_PORTRAIT;
-        }
         //Inflate Rootview
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
-        ButterKnife.bind(this, rootView);
+        ButterKnife.bind(this,rootView);
         //Add the name to the AppBar
         if (appBarLayout != null) {
             String addonText = getContext().getResources().getString(R.string.step);
@@ -230,7 +175,7 @@ public class RecipeStepsPortraitFragment extends Fragment {
     }
 
     public void setUpisPortraitRecipeStepFragment(boolean isport) {
-        isPortrait = isport;
+        isportrait = isport;
     }
 
     public void setUpStepId(String StepId){stepId=StepId;}
@@ -261,23 +206,13 @@ public class RecipeStepsPortraitFragment extends Fragment {
     public void SetDescriptionAdjustPlayer() {
         //Set Description
         if (recipe != null && mPlayerView != null) {
-            if (isPortrait) {
-                myLongDescription.setVisibility(View.VISIBLE);
-                int stepIdint = Integer.parseInt(stepId) - 1;
-                //Get proper description for this particular step
-                myLongDescription.setText(steps.get(stepIdint).getDescription());
-                ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)
-                        mPlayerView.getLayoutParams();
-                params.width = Math.round(getResources().getDimension(R.dimen.player_view_port_width));
-                params.height = Math.round(getResources().getDimension(R.dimen.player_view_port_width)) / 2;
-            } else {
                 myLongDescription.setVisibility(View.INVISIBLE);
                 mPlayerView.requestFocus();
                 ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)
                         mPlayerView.getLayoutParams();
-                params.width = Math.round(getResources().getDimension(R.dimen.player_view_land_width));
-                params.height = (int) Math.round(Math.round(getResources().getDimension(R.dimen.player_view_land_width)) / 2.1);
-            }
+                Bundle bundle=getScreenSize();
+                params.width = Integer.parseInt(bundle.getString(SCREN_H));
+                params.height = Integer.parseInt(bundle.getString(SCREEN_W));
         }
     }
 

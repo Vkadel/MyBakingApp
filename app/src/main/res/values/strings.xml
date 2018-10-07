@@ -15,4 +15,8 @@
     <string name="play">play</string>
     <string name="restart">restart</string>
     <string name="Upps_no_internet">Upps no Internet Connection \n Close and restart your App</string>
+    <string name="previous_step">Previous Step</string>
+    <string name="next_step">Next step</string>
+    <string name="last_step">This is the last step</string>
+    <string name="first_step">This is the first step</string>
 </resources>
