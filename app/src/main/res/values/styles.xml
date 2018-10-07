@@ -16,13 +16,23 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
     <style name="recipe_name">
         <item name="android:textSize">32sp</item>
     </style>
 
     <style name="Instruction_step_style">
         <item name="android:textSize">32sp</item>
-
     </style>
 
+    <style name="Recipe_widget_format" parent="AppTheme.AppBarOverlay">
+        <item name="android:textSize">8sp</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:textColor">#ffffff</item>
+
+    </style>
+    <style name="tittle_widget_tv">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
 </resources>

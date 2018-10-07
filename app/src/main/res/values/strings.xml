@@ -19,4 +19,13 @@
     <string name="next_step">Next step</string>
     <string name="last_step">This is the last step</string>
     <string name="first_step">This is the first step</string>
+    <string name="appwidget_text">Your Selected Recipe Ingredients</string>
+    <string name="add_widget">Add widget</string>
+    <string name="put_ingredients_in_widget">Put Ingredients \n in Widget</string>
+    <string name="word_for" type="id">for \s</string>
+    <string translatable="false" name="my_widget_recipe_id">my_widget_recipe_id</string>
+    <string translatable="false" name="my_widget_recipe_id_default_value">1</string>
+    <string name="updating_your_widget_with">Updating your widget with: \s</string>
+    <string name="my_widget_recipe_ingredients_id">ingredients</string>
+    <string name="my_widget_ingredients_default_value">Ingredients</string>
 </resources>

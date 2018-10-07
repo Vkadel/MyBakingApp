@@ -21,4 +21,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <Button
+        app:layout_constraintTop_toBottomOf="@id/servings"
+        android:id="@+id/put_recipe_ingredients_in_widget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/put_ingredients_in_widget" />
+
 </android.support.constraint.ConstraintLayout>
