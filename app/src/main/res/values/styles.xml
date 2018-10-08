@@ -18,7 +18,7 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="recipe_name">
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">26sp</item>
     </style>
 
     <style name="Instruction_step_style">
