@@ -5,7 +5,7 @@
     style="?android:attr/textAppearanceLarge"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:padding="@dimen/space_dimension_small"
     android:textIsSelectable="true"
     tools:context=".RecipeStepsPortraitFragment">
 
@@ -24,6 +24,7 @@
     <Button
         app:layout_constraintTop_toBottomOf="@id/servings"
         android:id="@+id/put_recipe_ingredients_in_widget"
+        android:textSize="8sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/put_ingredients_in_widget" />
