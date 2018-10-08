@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerHorizontal"
+    android:orientation="horizontal"
+    android:showDividers="middle"
+    tools:context=".RecipeDetailActivity">
+
+
+    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/step_list"
+        android:name="com.example.virginia.mybakingapp.RecipeStepFragment"
+        android:layout_width="@dimen/item_width"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        app:layoutManager="android.support.v7.widget.GridLayoutManager"
+        app:spanCount="1"
+        tools:context="com.example.virginia.mybakingapp.RecipeListActivity"
+        tools:listitem="@layout/step_list_item">
+
+    </android.support.v7.widget.RecyclerView>
+
+    <FrameLayout
+        android:id="@+id/step_frame_container"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+    </FrameLayout>
+
+
+</LinearLayout>
