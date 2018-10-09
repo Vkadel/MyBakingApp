@@ -41,7 +41,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:configChanges="orientation|screenSize|keyboardHidden"
                 android:value="com.example.virginia.mybakingapp.RecipeStepDetailActivity" />
         </activity>
 

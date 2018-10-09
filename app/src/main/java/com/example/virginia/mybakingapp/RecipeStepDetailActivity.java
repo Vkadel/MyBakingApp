@@ -7,34 +7,19 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.OrientationEventListener;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.ui.PlayerView;
 
 import java.util.ArrayList;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -48,13 +33,18 @@ public class RecipeStepDetailActivity extends AppCompatActivity {
     RecipeViewModel viewModel;
     static String thisItemID;
     static String thisStepID;
+    long thisPlayerPosition;
     RecipeStepsPortraitFragment fragmentSteps;
     RecipeStepsLandscapeFragment fragmentStepsLand;
     Context context;
     Boolean isPortrait;
     Boolean isLandscapeAndSmall;
+    long playerPosition=0;
     private static final String SCREN_H="screen_h";
     private static final String SCREEN_W="screen_w";
+    public static final String ARG_PLAYER_POSITION = "player_position";
+    RecipeStepsLandscapeFragment newfragmentStepsLand;
+    RecipeStepsPortraitFragment newfragmentSteps;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,21 +126,30 @@ public class RecipeStepDetailActivity extends AppCompatActivity {
             if(isLandscapeAndSmall){
                 if(isLandscapeAndSmall){
                     boolean isNew=false;
-                    Bundle argumentsStep = new Bundle();
-                    RecipeStepsLandscapeFragment newfragmentStepsLand = new RecipeStepsLandscapeFragment();
-                    argumentsStep.putString(RecipeStepsLandscapeFragment.ARG_ITEM_ID, thisItemID);
-                    argumentsStep.putString(RecipeStepsLandscapeFragment.ARG_STEP_ID, thisStepID);
-                    argumentsStep.putBoolean(RecipeStepsLandscapeFragment.ARG_IS_LANDSCAPE_AND_SMALL, isLandscapeAndSmall);
-                    newfragmentStepsLand.setArguments(argumentsStep);
+                    Bundle argumentsStepLand = new Bundle();
+                    newfragmentStepsLand = new RecipeStepsLandscapeFragment();
+                    argumentsStepLand.putString(RecipeStepsLandscapeFragment.ARG_ITEM_ID, thisItemID);
+                    argumentsStepLand.putString(RecipeStepsLandscapeFragment.ARG_STEP_ID, thisStepID);
+                    argumentsStepLand.putBoolean(RecipeStepsLandscapeFragment.ARG_IS_LANDSCAPE_AND_SMALL, isLandscapeAndSmall);
+                    argumentsStepLand.putLong(ARG_PLAYER_POSITION,savedInstanceState.getLong(ARG_PLAYER_POSITION));
+                    newfragmentStepsLand.setArguments(argumentsStepLand);
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.step_detail_container_portrait, newfragmentStepsLand).commit();}
+                            .replace(R.id.step_detail_container_portrait, newfragmentStepsLand).commit();
+                }
             }
             if (isPortrait){
+                newfragmentStepsLand=null;
                 Bundle argumentsStep = new Bundle();
-                RecipeStepsPortraitFragment newfragmentSteps = new RecipeStepsPortraitFragment();
+                newfragmentSteps = new RecipeStepsPortraitFragment();
                 argumentsStep.putString(RecipeStepsPortraitFragment.ARG_ITEM_ID, thisItemID);
                 argumentsStep.putString(RecipeStepsPortraitFragment.ARG_STEP_ID, thisStepID);
                 argumentsStep.putBoolean(RecipeStepsPortraitFragment.ARG_IS_PORTRAIT, isPortrait);
+                if (savedInstanceState.containsKey(ARG_PLAYER_POSITION)){
+                argumentsStep.putLong(ARG_PLAYER_POSITION,savedInstanceState.getLong(ARG_PLAYER_POSITION));}
+                //Send
+                if(thisPlayerPosition!=0){
+                    argumentsStep.putLong(ARG_PLAYER_POSITION,thisPlayerPosition);
+                }
                 newfragmentSteps.setArguments(argumentsStep);
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.step_detail_container_portrait, newfragmentSteps).commit();
@@ -182,10 +181,18 @@ public class RecipeStepDetailActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-       /* fragmentSteps.onConfigurationChanged(newConfig);
-        if (isPortrait && !mTwoPane) {
-            fragmentSteps.setUpisPortraitRecipeStepFragment(true);
-        }*/
+        if(fragmentStepsLand!=null){
+            thisPlayerPosition=fragmentStepsLand.getPlayerPosition();
+        }
+        if(fragmentSteps!=null){
+            thisPlayerPosition=fragmentSteps.getPlayerPosition();
+        }
+        if(newfragmentSteps!=null){
+            thisPlayerPosition=newfragmentSteps.getPlayerPosition();
+        }
+        if (newfragmentStepsLand!=null){
+            thisPlayerPosition=newfragmentStepsLand.getPlayerPosition();
+        }
     }
 
     @Override
@@ -193,13 +200,31 @@ public class RecipeStepDetailActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         thisItemID = savedInstanceState.getString(RecipeStepsPortraitFragment.ARG_ITEM_ID);
         thisStepID = savedInstanceState.getString(RecipeStepsPortraitFragment.ARG_STEP_ID);
-
+        if (savedInstanceState.containsKey(ARG_PLAYER_POSITION)){
+            thisPlayerPosition=savedInstanceState.getLong(ARG_PLAYER_POSITION);
+        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(RecipeStepsPortraitFragment.ARG_ITEM_ID,thisItemID);
         outState.putString(RecipeStepsPortraitFragment.ARG_STEP_ID,thisStepID);
+
+        //Getting previous player position if the screen is turned
+        if(fragmentStepsLand!=null){
+             playerPosition=fragmentStepsLand.getPlayerPosition();
+        }
+        if(fragmentSteps!=null){
+             playerPosition=fragmentSteps.getPlayerPosition();
+        }
+        if(newfragmentSteps!=null){
+            playerPosition=newfragmentSteps.getPlayerPosition();
+        }
+        if (newfragmentStepsLand!=null){
+            playerPosition=newfragmentStepsLand.getPlayerPosition();
+        }
+
+        outState.putLong(ARG_PLAYER_POSITION,playerPosition);
         super.onSaveInstanceState(outState);
 
     }

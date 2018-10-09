@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -43,6 +44,7 @@ public class RecipeStepsLandscapeFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
+    public static final String ARG_PLAYER_POSITION = "player_position";
     public static final String ARG_ITEM_ID = "item_id";
     public static final String ARG_STEP_ID = "step_id";
     public static final String ARG_IS_PORTRAIT = "is_portrait";
@@ -59,7 +61,7 @@ public class RecipeStepsLandscapeFragment extends Fragment {
     private Context context;
     @BindView(R.id.tv_step_description_intwopane)
     TextView myLongDescription;
-
+    Long videoWasPlayingat;
 
     Toast toast;
 
@@ -68,6 +70,7 @@ public class RecipeStepsLandscapeFragment extends Fragment {
     @BindView(R.id.playerView)
     PlayerView mPlayerView;
     private String videoURL;
+    long playerPosition=0;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -76,44 +79,78 @@ public class RecipeStepsLandscapeFragment extends Fragment {
     public RecipeStepsLandscapeFragment() {
     }
 
+    private void releasePlayer() {
+        player.release();
+        player = null;
+        mPlayerView.getOverlayFrameLayout().removeAllViews();
+        videoURL = null;
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (player != null) {
-            if (player != null) {
-                player.release();
-                player = null;
-                mPlayerView.getOverlayFrameLayout().removeAllViews();
-                videoURL = null;
-            }
+            releasePlayer();
+            playerPosition=0;
         }
     }
 
+
     @Override
     public void onStart() {
+        super.onStart();
         if (player != null) {
-            super.onStart();
             mPlayerView.requestFocus();
         }
     }
 
     @Override
-    public void onPause() {
+    public void onStop() {
+        super.onStop();
         if (player != null) {
-            super.onPause();
-            player.stop();
+            if (Util.SDK_INT <= 23) {
+                releasePlayer();
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (player != null) {
+            if (Util.SDK_INT <= 23) {
+                releasePlayer();
+            }
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (player != null) {
+
+        if (player != null && playerPosition != 0) {
+            player.seekTo(playerPosition);
+            player.setPlayWhenReady(true);
+        } else {
             player.seekTo(0);
             player.setPlayWhenReady(true);
         }
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(ARG_PLAYER_POSITION, player.getCurrentPosition());
+        player.stop();
+    }
 
+    public Long getPlayerPosition(){
+        if(player!=null){
+            return player.getCurrentPosition();
+        }else{
+            long returnStart=0;
+            return returnStart;
+        }
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,30 +168,31 @@ public class RecipeStepsLandscapeFragment extends Fragment {
             viewModel = ViewModelProviders.of(getActivity()).get(RecipeViewModel.class);
             recipe = viewModel.getRecipes().getValue().get(Integer.parseInt(itemId) - 1);
             steps = recipe.getSteps();
+
         }
     }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        initPlayer();
-        SetDescriptionAdjustPlayer();
-        int screenSize=Integer.parseInt(getScreenSize().getString(SCREEN_W));
-    }
-
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         int orientation = this.getActivity().getRequestedOrientation();
         Timber.e("CONFIGURATION CHANGED" + orientation);
+        player.stop();
 
+    }
+
+    @Override
+    public void setRetainInstance(boolean retain) {
+        super.setRetainInstance(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        //check if activity was already started
+        if (savedInstanceState != null) {
+            videoWasPlayingat = savedInstanceState.getLong(ARG_PLAYER_POSITION);
+        }
         //Only get the recipe and set the Views if the system has data
 
             isLandScape = getActivity().getResources().getConfiguration().orientation ==
@@ -168,6 +206,16 @@ public class RecipeStepsLandscapeFragment extends Fragment {
             String addonText = getContext().getResources().getString(R.string.step);
             appBarLayout.setTitle(recipe.getName() + " " + addonText + " " + stepId);
         }
+        if (recipe!=null){
+            initPlayer();
+            SetDescriptionAdjustPlayer();
+
+        }
+        //Check if it came from started video Session
+        if(getArguments().containsKey(ARG_PLAYER_POSITION)){
+            playerPosition=getArguments().getLong(ARG_PLAYER_POSITION);
+        }
+        int screenSize=Integer.parseInt(getScreenSize().getString(SCREEN_W));
         return rootView;
     }
 
@@ -183,7 +231,6 @@ public class RecipeStepsLandscapeFragment extends Fragment {
         player = ExoPlayerFactory.newSimpleInstance(context);
         if (recipe != null && videoURL != null && !videoURL.isEmpty()) {
             got_video();
-            player = ExoPlayerFactory.newSimpleInstance(context);
             mPlayerView.setPlayer(player);
             player.setPlayWhenReady(true);
             // Produces DataSource instances through which media data is loaded.
@@ -195,6 +242,7 @@ public class RecipeStepsLandscapeFragment extends Fragment {
 
             // Prepare the player with the source.
             player.prepare(videoSource);
+            player.seekTo(playerPosition);
         } else {
             no_video();
         }

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -53,6 +54,7 @@ public class RecipeStepsPortraitFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
+    public static final String ARG_PLAYER_POSITION = "player_position";
     public static final String ARG_ITEM_ID = "item_id";
     public static final String ARG_STEP_ID = "step_id";
     public static final String ARG_IS_PORTRAIT = "is_portrait";
@@ -77,7 +79,6 @@ public class RecipeStepsPortraitFragment extends Fragment {
     Button nextStep;
     @BindView(R.id.tv_step_description_intwopane)
     TextView myLongDescription;
-
     Toast toast;
 
     //Player related variables
@@ -85,7 +86,8 @@ public class RecipeStepsPortraitFragment extends Fragment {
     @BindView(R.id.playerView)
     PlayerView mPlayerView;
     private String videoURL;
-
+    long videoWasPlayingat=0;
+    long playerPosition=0;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -93,41 +95,75 @@ public class RecipeStepsPortraitFragment extends Fragment {
     public RecipeStepsPortraitFragment() {
     }
 
+    private void releasePlayer() {
+        player.stop();
+        player.release();
+        player = null;
+        mPlayerView.getOverlayFrameLayout().removeAllViews();
+        videoURL = null;
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (player != null) {
-            if (player != null) {
-                player.release();
-                player = null;
-                mPlayerView.getOverlayFrameLayout().removeAllViews();
-                videoURL = null;
-            }
+            releasePlayer();
         }
     }
 
     @Override
     public void onStart() {
+        super.onStart();
         if (player != null) {
-            super.onStart();
             mPlayerView.requestFocus();
         }
     }
 
     @Override
-    public void onPause() {
+    public void onStop() {
+        super.onStop();
         if (player != null) {
-            super.onPause();
-            player.stop();
+            if (Util.SDK_INT <= 23) {
+                releasePlayer();
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (player != null) {
+            if (Util.SDK_INT <= 23) {
+                releasePlayer();
+            }
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
         if (player != null) {
+            player.seekTo(playerPosition);
+            player.setPlayWhenReady(true);
+        } else {
             player.seekTo(0);
             player.setPlayWhenReady(true);
+        }
+    }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(ARG_PLAYER_POSITION, player.getCurrentPosition());
+        player.stop();
+    }
+
+    public Long getPlayerPosition(){
+        if(player!=null){
+            return player.getCurrentPosition();
+        }else{
+            long returnStart=0;
+            return returnStart;
         }
     }
 
@@ -148,52 +184,8 @@ public class RecipeStepsPortraitFragment extends Fragment {
             viewModel = ViewModelProviders.of(getActivity()).get(RecipeViewModel.class);
             recipe = viewModel.getRecipes().getValue().get(Integer.parseInt(itemId) - 1);
             steps = recipe.getSteps();
-        }
-    }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        initPlayer();
-        SetDescriptionAdjustPlayer();
-        int screenSize=Integer.parseInt(getScreenSize().getString(SCREEN_W));
-        //On Click listener for buttom that loads the previous step
-        if (isPortrait && nextStep!=null){
-        prevStep.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Integer.parseInt(stepId) ==1){
-                    Toast.makeText(context, context.getResources()
-                            .getString(R.string.first_step), Toast.LENGTH_SHORT).show();
-                }
-                if (Integer.parseInt(stepId) >1) {
-                    String nextStep = String.valueOf(Integer.parseInt(stepId) - 1);
-                    Intent intent = new Intent(context, RecipeStepDetailActivity.class);
-                    intent.putExtra(RecipeStepsListFragment.ARG_ITEM_ID, itemId);
-                    intent.putExtra(RecipeStepsListFragment.ARG_STEP_ID, nextStep);
-                    context.startActivity(intent);
-                }
-            }
-        });
-        //On Click listener for buttom that loads the next step
-        nextStep.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Clicking the next StepDetail Activity
-                if(Integer.parseInt(stepId) == recipe.getSteps().size()){
-                    Toast.makeText(context, context.getResources()
-                            .getString(R.string.last_step), Toast.LENGTH_SHORT).show();
-                }
-                if (Integer.parseInt(stepId) < recipe.getSteps().size()) {
-                    String nextStep = String.valueOf(Integer.parseInt(stepId) + 1);
-                    Intent intent = new Intent(context, RecipeStepDetailActivity.class);
-                    intent.putExtra(RecipeStepsListFragment.ARG_ITEM_ID, itemId);
-                    intent.putExtra(RecipeStepsListFragment.ARG_STEP_ID, nextStep);
-                    context.startActivity(intent);
-                }
-            }
-        });
-    }
+        }
     }
 
 
@@ -202,20 +194,20 @@ public class RecipeStepsPortraitFragment extends Fragment {
         super.onConfigurationChanged(newConfig);
         int orientation = this.getActivity().getRequestedOrientation();
         Timber.e("CONFIGURATION CHANGED" + orientation);
-
+        player.stop();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        //Only get the recipe and set the Views if the system has data
-
-
+        //check if activity was already started
         if (savedInstanceState != null) {
+            videoWasPlayingat = savedInstanceState.getLong(ARG_PLAYER_POSITION);
             isPortrait = getActivity().getResources().getConfiguration().orientation ==
                     getActivity().getResources().getConfiguration().ORIENTATION_PORTRAIT;
         }
+        //Only get the recipe and set the Views if the system has data
         //Inflate Rootview
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
         ButterKnife.bind(this, rootView);
@@ -224,6 +216,52 @@ public class RecipeStepsPortraitFragment extends Fragment {
             String addonText = getContext().getResources().getString(R.string.step);
             appBarLayout.setTitle(recipe.getName() + " " + addonText + " " + stepId);
         }
+
+        int screenSize=Integer.parseInt(getScreenSize().getString(SCREEN_W));
+        //On Click listener for buttom that loads the previous step
+        if (isPortrait && nextStep!=null){
+            prevStep.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Integer.parseInt(stepId) ==1){
+                        Toast.makeText(context, context.getResources()
+                                .getString(R.string.first_step), Toast.LENGTH_SHORT).show();
+                    }
+                    if (Integer.parseInt(stepId) >1) {
+                        String nextStep = String.valueOf(Integer.parseInt(stepId) - 1);
+                        Intent intent = new Intent(context, RecipeStepDetailActivity.class);
+                        intent.putExtra(RecipeStepsListFragment.ARG_ITEM_ID, itemId);
+                        intent.putExtra(RecipeStepsListFragment.ARG_STEP_ID, nextStep);
+                        context.startActivity(intent);
+                    }
+                }
+            });
+            //On Click listener for buttom that loads the next step
+            nextStep.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //Clicking the next StepDetail Activity
+                    if(Integer.parseInt(stepId) == recipe.getSteps().size()){
+                        Toast.makeText(context, context.getResources()
+                                .getString(R.string.last_step), Toast.LENGTH_SHORT).show();
+                    }
+                    if (Integer.parseInt(stepId) < recipe.getSteps().size()) {
+                        String nextStep = String.valueOf(Integer.parseInt(stepId) + 1);
+                        Intent intent = new Intent(context, RecipeStepDetailActivity.class);
+                        intent.putExtra(RecipeStepsListFragment.ARG_ITEM_ID, itemId);
+                        intent.putExtra(RecipeStepsListFragment.ARG_STEP_ID, nextStep);
+                        context.startActivity(intent);
+                    }
+                }
+            });
+        }
+        //Check if it came from started video Session
+        if(getArguments().containsKey(ARG_PLAYER_POSITION)){
+            playerPosition=getArguments().getLong(ARG_PLAYER_POSITION);
+        }
+        if(recipe!=null){
+        initPlayer();
+        SetDescriptionAdjustPlayer();}
         return rootView;
     }
 
@@ -239,7 +277,6 @@ public class RecipeStepsPortraitFragment extends Fragment {
         player = ExoPlayerFactory.newSimpleInstance(context);
         if (recipe != null && videoURL != null && !videoURL.isEmpty()) {
             got_video();
-            player = ExoPlayerFactory.newSimpleInstance(context);
             mPlayerView.setPlayer(player);
             player.setPlayWhenReady(true);
             // Produces DataSource instances through which media data is loaded.
@@ -251,6 +288,7 @@ public class RecipeStepsPortraitFragment extends Fragment {
 
             // Prepare the player with the source.
             player.prepare(videoSource);
+            player.seekTo(playerPosition);
         } else {
             no_video();
         }
