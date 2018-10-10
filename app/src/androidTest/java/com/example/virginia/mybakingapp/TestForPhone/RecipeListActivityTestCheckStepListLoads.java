@@ -1,7 +1,8 @@
-package com.example.virginia.mybakingapp;
+package com.example.virginia.mybakingapp.TestForPhone;
 
 
 import android.support.test.espresso.ViewInteraction;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -9,9 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import com.example.virginia.mybakingapp.R;
+import com.example.virginia.mybakingapp.RecipeListActivity;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,24 +28,24 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class RecipeListActivityTestIngredientScreenExist {
+//Attention: This test is only for phones (small Screens)
+public class RecipeListActivityTestCheckStepListLoads {
 
     @Rule
     public ActivityTestRule<RecipeListActivity> mActivityTestRule = new ActivityTestRule<>(RecipeListActivity.class);
 
     @Test
-    public void recipeListActivityTestIngredientScreenExist() {
+    public void recipeListActivityTestCheckStepListLoads() {
         ViewInteraction recyclerView = onView(
-                allOf(withId(R.id.recipe_list),
+                Matchers.allOf(ViewMatchers.withId(R.id.recipe_list),
                         childAtPosition(
                                 withId(R.id.frameLayout),
                                 0)));
-        recyclerView.perform(actionOnItemAtPosition(0, click()));
+        recyclerView.perform(actionOnItemAtPosition(2, click()));
 
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
@@ -50,15 +56,26 @@ public class RecipeListActivityTestIngredientScreenExist {
             e.printStackTrace();
         }
 
-        ViewInteraction textView = onView(
-                allOf(withId(R.id.recipe_detail_ingredients), withText("Ingredient List\n\n2.0 CUP Graham Cracker crumbs\n6.0 TBLSP unsalted butter, melted\n0.5 CUP granulated sugar\n1.5 TSP salt\n5.0 TBLSP vanilla\n1.0 K Nutella or other chocolate-hazelnut spread\n500.0 G Mascapone Cheese(room temperature)\n1.0 CUP heavy cream(cold)\n4.0 OZ cream cheese(softened)\n"),
+        ViewInteraction button = onView(
+                allOf(withId(R.id.put_recipe_ingredients_in_widget),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.recipe_detail_container),
                                         0),
+                                2),
+                        isDisplayed()));
+        button.check(matches(isDisplayed()));
+
+        ViewInteraction recyclerView2 = onView(
+                allOf(withId(R.id.step_list),
+                        childAtPosition(
+                                allOf(withId(R.id.frameLayout),
+                                        childAtPosition(
+                                                IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                                1)),
                                 0),
                         isDisplayed()));
-        textView.check(matches(isDisplayed()));
+        recyclerView2.check(matches(isDisplayed()));
     }
 
     private static Matcher<View> childAtPosition(
